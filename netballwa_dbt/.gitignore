@@ -1,0 +1,23 @@
+
+target/
+dbt_packages/
+logs/
+.env
+
+~/.dbt/profiles.yml
+profiles.yml
+
+# dbt logs and compiled/run query artifacts
+logs/
+target/
+~/logs/dbt.log
+
+# ======= PYTHON & ENVIRONMENT =======
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# ======= SYSTEM FILES =======
+.env
+.DS_Store

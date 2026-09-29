@@ -1,0 +1,28 @@
+{{ config(
+    materialized='view',
+    database=var('nbwa_bronze_database'),
+    schema=var('nbwa_bronze_schema'),
+    alias='CHECKOUTS'
+) }}
+
+SELECT
+    RECORD_ID AS CHECKOUT_ID,
+    DATA:sellerId::VARCHAR AS SELLER_ID,
+    DATA:customerId::VARCHAR AS CUSTOMER_ID,
+    DATA:email::VARCHAR AS EMAIL,
+    DATA:firstname::VARCHAR AS FIRST_NAME,
+    DATA:lastname::VARCHAR AS LAST_NAME,
+    DATA:status::VARCHAR AS STATUS,
+    DATA:type::VARCHAR AS CHECKOUT_TYPE,
+    DATA:currency::VARCHAR AS CURRENCY,
+    TRY_TO_DECIMAL(DATA:realPrice::VARCHAR, 18, 4) AS REAL_PRICE,
+    DATA:salesChannelId::VARCHAR AS SALES_CHANNEL_ID,
+    DATA:channel::VARCHAR AS CHANNEL,
+    DATA:items AS ITEMS,
+    TRY_TO_TIMESTAMP_TZ(DATA:createdAt::VARCHAR) AS CREATED_AT,
+    TRY_TO_TIMESTAMP_TZ(DATA:expiresAt::VARCHAR) AS EXPIRES_AT,
+    SOURCE_UPDATED_AT AS UPDATED_AT,
+    FIRST_LOADED_AT,
+    LAST_CHANGED_AT
+FROM {{ source('vivenu_native', 'vivenu_raw_current') }}
+WHERE STREAM_NAME = 'checkouts'

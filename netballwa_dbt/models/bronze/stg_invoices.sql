@@ -1,0 +1,27 @@
+{{ config(
+    materialized='view',
+    database=var('nbwa_bronze_database'),
+    schema=var('nbwa_bronze_schema'),
+    alias='INVOICES'
+) }}
+
+SELECT
+    RECORD_ID AS INVOICE_ID,
+    DATA:sellerId::VARCHAR AS SELLER_ID,
+    DATA:transactionId::VARCHAR AS TRANSACTION_ID,
+    DATA:customerId::VARCHAR AS CUSTOMER_ID,
+    DATA:no::VARCHAR AS INVOICE_NUMBER,
+    DATA:type::VARCHAR AS INVOICE_TYPE,
+    DATA:currency::VARCHAR AS CURRENCY,
+    TRY_TO_DECIMAL(DATA:total::VARCHAR, 18, 4) AS TOTAL,
+    TRY_TO_DECIMAL(DATA:includedTax::VARCHAR, 18, 4) AS INCLUDED_TAX,
+    TRY_TO_DECIMAL(DATA:discountSum::VARCHAR, 18, 4) AS DISCOUNT_SUM,
+    DATA:origin::VARCHAR AS ORIGIN,
+    DATA:items AS ITEMS,
+    DATA:recipient AS RECIPIENT,
+    TRY_TO_TIMESTAMP_TZ(DATA:createdAt::VARCHAR) AS CREATED_AT,
+    SOURCE_UPDATED_AT AS UPDATED_AT,
+    FIRST_LOADED_AT,
+    LAST_CHANGED_AT
+FROM {{ source('vivenu_native', 'vivenu_raw_current') }}
+WHERE STREAM_NAME = 'invoices'

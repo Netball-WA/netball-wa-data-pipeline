@@ -1,0 +1,40 @@
+{{ config(
+    materialized='view',
+    database=var('nbwa_bronze_database'),
+    schema=var('nbwa_bronze_schema'),
+    alias='TRANSACTIONS'
+) }}
+
+SELECT
+    RECORD_ID AS TRANSACTION_ID,
+    DATA:tid::VARCHAR AS TRANSACTION_NUMBER,
+    DATA:sellerId::VARCHAR AS SELLER_ID,
+    DATA:eventId::VARCHAR AS EVENT_ID,
+    DATA:customerId::VARCHAR AS CUSTOMER_ID,
+    DATA:status::VARCHAR AS STATUS,
+    DATA:paymentStatus::VARCHAR AS PAYMENT_STATUS,
+    DATA:currency::VARCHAR AS CURRENCY,
+    TRY_TO_DECIMAL(DATA:realPrice::VARCHAR, 18, 4) AS REAL_PRICE,
+    DATA:tickets AS LINE_ITEMS,
+    li.INDEX AS LINE_ITEM_INDEX,
+    li.VALUE:"_id"::VARCHAR AS LINE_ITEM_ID,
+    li.VALUE:name::VARCHAR AS LINE_ITEM_NAME,
+    li.VALUE:type::VARCHAR AS LINE_ITEM_TYPE,
+    li.VALUE:ticketTypeId::VARCHAR AS LINE_ITEM_TICKET_TYPE_ID,
+    TRY_TO_DECIMAL(li.VALUE:price::VARCHAR, 18, 4) AS LINE_ITEM_PRICE,
+    TRY_TO_DECIMAL(li.VALUE:netPrice::VARCHAR, 18, 4) AS LINE_ITEM_NET_PRICE,
+    TRY_TO_DECIMAL(li.VALUE:taxRate::VARCHAR, 18, 4) AS LINE_ITEM_TAX_RATE,
+    li.VALUE:amount::NUMBER AS LINE_ITEM_QUANTITY,
+    li.VALUE:seatingInfo.sectionName::VARCHAR AS LINE_ITEM_SEAT_SECTION,
+    li.VALUE:seatingInfo.rowName::VARCHAR AS LINE_ITEM_SEAT_ROW,
+    li.VALUE:seatingInfo.seatName::VARCHAR AS LINE_ITEM_SEAT_NAME,
+    li.VALUE:seatingInfo.gate::VARCHAR AS LINE_ITEM_SEAT_GATE,
+    li.VALUE:categoryRef::VARCHAR AS LINE_ITEM_CATEGORY_REF,
+    li.VALUE:planId::VARCHAR AS LINE_ITEM_PLAN_ID,
+    TRY_TO_TIMESTAMP_TZ(DATA:createdAt::VARCHAR) AS CREATED_AT,
+    SOURCE_UPDATED_AT AS UPDATED_AT,
+    FIRST_LOADED_AT,
+    LAST_CHANGED_AT
+FROM {{ source('vivenu_native', 'vivenu_raw_current') }},
+    LATERAL FLATTEN(INPUT => DATA:tickets, OUTER => TRUE) li
+WHERE STREAM_NAME = 'transactions'

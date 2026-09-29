@@ -1,0 +1,30 @@
+{{ config(
+    materialized='view',
+    database=var('nbwa_bronze_database'),
+    schema=var('nbwa_bronze_schema'),
+    alias='VIVENU_RUN_DETAILS'
+) }}
+
+SELECT
+    R.RUN_ID,
+    R.STARTED_AT,
+    R.FINISHED_AT,
+    R.STATUS AS RUN_STATUS,
+    R.REQUESTED_STREAM,
+    F.KEY::VARCHAR AS STREAM_NAME,
+    F.VALUE:status::VARCHAR AS STREAM_STATUS,
+    F.VALUE:mode::VARCHAR AS SYNC_MODE,
+    F.VALUE:pages::NUMBER AS PAGES,
+    F.VALUE:scopes::NUMBER AS SCOPES,
+    F.VALUE:fetched::NUMBER AS RECORDS_FETCHED,
+    F.VALUE:inserted::NUMBER AS RECORDS_INSERTED,
+    F.VALUE:updated::NUMBER AS RECORDS_UPDATED,
+    F.VALUE:full_refresh::BOOLEAN AS FULL_REFRESH,
+    F.VALUE:watermark_advanced::BOOLEAN AS WATERMARK_ADVANCED,
+    F.VALUE:records_without_returned_cursor::NUMBER
+        AS RECORDS_WITHOUT_RETURNED_CURSOR,
+    TRY_TO_TIMESTAMP_TZ(F.VALUE:from::VARCHAR) AS FROM_TS,
+    TRY_TO_TIMESTAMP_TZ(F.VALUE:to::VARCHAR) AS TO_TS,
+    R.ERROR_MESSAGE
+FROM {{ source('vivenu_native', 'vivenu_sync_runs') }} R,
+LATERAL FLATTEN(INPUT => R.STREAM_RESULTS) F
