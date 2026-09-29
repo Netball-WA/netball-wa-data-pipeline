@@ -3,7 +3,7 @@ version: 2
 sources:
   - name: vivenu_native
     database: "{{ var('nbwa_bronze_database') }}"
-    schema: "{{ var('nbwa_bronze_schema') }}"
+    schema: "{{ var('nbwa_native_schema') }}"
     tables:
       - name: vivenu_raw_current
       - name: vivenu_stream_config

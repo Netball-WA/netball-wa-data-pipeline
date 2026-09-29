@@ -35,11 +35,11 @@ models:
     example:
       +materialized: view
     bronze:
-      +database: VIVENUE_API_DATA
+      +database: VIVENU_API_DATA
       +schema: BRONZE
       +materialized: view
     silver:
-      +database: VIVENUE_API_DATA
+      +database: VIVENU_API_DATA
       +schema: SILVER
       +materialized: ephemeral
     gold:
@@ -49,5 +49,6 @@ models:
 
 
 vars:
-  nbwa_bronze_database: 'VIVENUE_API_DATA'  
+  nbwa_bronze_database: 'VIVENU_API_DATA'  
   nbwa_bronze_schema: 'BRONZE'   
+  nbwa_native_schema: 'VIVENU_NATIVE'
