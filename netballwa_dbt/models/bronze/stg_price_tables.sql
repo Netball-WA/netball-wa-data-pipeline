@@ -1,7 +1,5 @@
 {{ config(
     materialized='view',
-    database=var('nbwa_bronze_database'),
-    schema=var('nbwa_bronze_schema'),
     alias='PRICE_TABLES'
 ) }}
 

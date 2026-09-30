@@ -31,21 +31,17 @@ clean-targets:         # directories to be removed by `dbt clean`
 # files using the `{{ config(...) }}` macro.
 models:
   netballwa_dbt:
-    # Config indicated by + and applies to all files under models/example/
-    example:
-      +materialized: view
+    # Everything in models/bronze/
     bronze:
+      +materialized: view
       +database: VIVENU_API_DATA
       +schema: BRONZE
-      +materialized: view
+
+    # Everything in models/silver/
     silver:
+      +materialized: table
       +database: VIVENU_API_DATA
       +schema: SILVER
-      +materialized: ephemeral
-    gold:
-      +database: BRAZE_PRODUCTION
-      +schema: MARTS
-      +materialized: table
 
 
 vars:
