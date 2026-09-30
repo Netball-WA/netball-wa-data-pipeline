@@ -1,4 +1,4 @@
-{% macro create_task_vivenu_hourly_sync(database, schema, sproc_name) %}
+{% macro create_task_vivenu_hourly_sync(database, schema) %}
 
 {% set sql %}
     CREATE OR REPLACE TASK {{database}}.{{schema}}.TASK_VIVENU_HOURLY
